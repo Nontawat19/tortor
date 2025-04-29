@@ -4,6 +4,7 @@ import RegisterPage from "./pages/Auth/RegisterPage";
 import ForgotPasswordPage from "./pages/Auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/Auth/ResetPasswordPage";
 import HomePage from "./pages/Home/HomePage";
+import ProfilePage from "./pages/Profile/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 
@@ -54,9 +55,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Default Redirect */}
-        <Route path="*" element={<Navigate to="/home" replace />} />
+        {/* Default fallback */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

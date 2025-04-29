@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, database, storage } from "../../firebase";
+import { auth, firestore, storage } from "../../firebase"; // ✅ ใช้ firestore แทน database
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { ref as databaseRef, set } from "firebase/database";
+import { doc, setDoc } from "firebase/firestore"; // ✅ import ของ firestore
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 import { ToastContainer, toast } from "react-toastify";
@@ -73,7 +73,7 @@ const RegisterPage: React.FC = () => {
         profileImageUrl = await getDownloadURL(storageReference);
       }
 
-      await set(databaseRef(database, `users/${uid}`), {
+      await setDoc(doc(firestore, "users", uid), {
         fullName,
         email,
         profileUrl: profileImageUrl || profileUrl || "",
@@ -84,7 +84,7 @@ const RegisterPage: React.FC = () => {
       setTimeout(() => navigate("/login"), 2500);
     } catch (error: any) {
       console.error(error);
-      showFirebaseError(error); // ✅ ใช้ฟังก์ชันกลางจัดการ error
+      showFirebaseError(error);
     }
   };
 
@@ -101,7 +101,7 @@ const RegisterPage: React.FC = () => {
         draggable
         pauseOnHover
         theme="light"
-        closeButton={false} // ✅ ไม่มีปุ่ม ❌ แล้ว
+        closeButton={false}
         style={{ width: "400px" }}
       />
 

@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify"; // ยังคง import ไว้ เพราะบางกรณีใช้ Toast error
 import ToastContent from "../../components/ToastContent";
 import Logo from "../../assets/logo.png";
-import { showFirebaseError } from "../../utils/showFirebaseError"; // ✅ เรียกใช้ function กลาง
+import { showFirebaseError } from "../../utils/showFirebaseError";
 
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/LoginPage.css";
@@ -25,13 +25,12 @@ const LoginPage: React.FC = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      toast.success(<ToastContent title="สำเร็จ" message="เข้าสู่ระบบเรียบร้อย!" />);
       setTimeout(() => {
-        navigate("/home");
-      }, 2000);
+        navigate("/home", { state: { fromLogin: true } }); // ✅ Navigate อย่างเดียว ไม่ต้อง Toast ที่นี่
+      }, 300); // หน่วงนิดนึงให้แน่ใจว่า login สำเร็จก่อน
     } catch (error: any) {
       console.error(error);
-      showFirebaseError(error); // ✅ ใช้ฟังก์ชันกลาง
+      showFirebaseError(error);
     }
   };
 
@@ -48,7 +47,7 @@ const LoginPage: React.FC = () => {
         draggable
         pauseOnHover
         theme="light"
-        closeButton={false} // ✅ เอาปุ่ม ❌ ออก
+        closeButton={false}
         style={{ width: "400px" }}
       />
 

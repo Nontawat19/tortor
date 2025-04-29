@@ -1,27 +1,30 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
+import MainLayout from "@/layouts/MainLayout";
+import LeftSidebar from "@/components/Sidebar/LeftSidebar";
+import RightSidebar from "@/components/Sidebar/RightSidebar";
+import PostCreator from "@/components/Post/PostCreator";
+import PostList from "@/components/Post/PostList";
+
+import "@/styles/HomePage.css";
 
 const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await auth.signOut();
-      navigate("/login"); // ✅ ออกจากระบบแล้วไปหน้า Login
-    } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการออกจากระบบ:", error);
-    }
-  };
-
   return (
-    <div className="home-container">
-      <h1>ยินดีต้อนรับสู่หน้า Home 🎉</h1>
+    <MainLayout>
+      <div className="layout-content">
+        <aside className="sidebar-left">
+          <LeftSidebar />
+        </aside>
 
-      <button onClick={handleLogout} style={{ marginTop: "20px", padding: "10px 20px", fontSize: "16px" }}>
-        ออกจากระบบ
-      </button>
-    </div>
+        <main className="feed-center">
+          <PostCreator />
+          <PostList />
+        </main>
+
+        <aside className="sidebar-right">
+          <RightSidebar />
+        </aside>
+      </div>
+    </MainLayout>
   );
 };
 

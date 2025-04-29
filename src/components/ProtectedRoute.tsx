@@ -1,19 +1,38 @@
-import React, { ReactNode } from "react"; // ✅ Import ReactNode มาใช้
+import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 
 interface ProtectedRouteProps {
-  children: ReactNode; // ✅ เปลี่ยนจาก JSX.Element เป็น ReactNode
+  children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const user = auth.currentUser;
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  if (!user) {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>; // หรือทำ spinner กำลังโหลดก็ได้
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>; // ✅ ต้องครอบ children ด้วย Fragment
+  return <>{children}</>;
 };
 
 export default ProtectedRoute;
