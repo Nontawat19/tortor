@@ -1,17 +1,25 @@
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #18191a;
+  height: 100vh;
+}
+
 .layout-content {
   display: flex;
+  flex-direction: row;
+  justify-content: center;
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 16px;
-  gap: 16px;
+  flex: 1;
+  overflow: hidden;
+  gap: 20px;
   box-sizing: border-box;
 }
 
-.sidebar-left,
-.sidebar-right {
-  width: 250px;
-  display: block;
+.sidebar-left {
+  width: 280px;
+  flex-shrink: 0;
 }
 
 .feed-center {
@@ -19,26 +27,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-sizing: border-box;
-  margin-top: 15px;
   width: 100%;
-  max-width: 780px;
+  max-width: 680px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 50px; /* ✅ ระยะห่างจาก Navbar สำหรับ Desktop */
+}
+
+.sidebar-right {
+  width: 300px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 80px;
+  height: fit-content;
+  align-self: flex-start;
+  margin-left: auto;
 }
 
 @media (max-width: 1024px) {
+  .layout-content {
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 12px 8px;
+  }
+
   .sidebar-left,
   .sidebar-right {
     display: none;
   }
 
-  .layout-content {
-    flex-direction: column;
-    padding: 12px 8px;
-  }
-
   .feed-center {
-    width: 100%;
     max-width: 100%;
-    padding: 0 2px;
+    height: 100vh;
+    margin-top: 30px; /* ✅ ระยะห่างน้อยลงบน Mobile/Tablet */
   }
 }
