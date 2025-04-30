@@ -1,30 +1,32 @@
 /* Navbar.css */
-
 .fb-navbar {
-  width: 100%;
-  height: 60px;
-  background-color: #242526;
-  padding: 0 16px;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  height: 60px;
+  background-color: #242526;
+  z-index: 999;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  padding: 0 16px;
 }
 
 .fb-navbar-container {
   width: 100%;
-  max-width: 1280px;
+  max-width: calc(100vw - 16px); /* ✅ เผื่อ scrollbar */
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 8px;
   overflow: hidden;
+  box-sizing: border-box;
 }
+
 
 .fb-navbar-left,
 .fb-navbar-center,
@@ -133,3 +135,13 @@
   color: white;
   cursor: pointer;
 }
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #242526;
+  z-index: 1000;
+}
+

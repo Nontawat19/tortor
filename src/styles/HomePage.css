@@ -1,56 +1,56 @@
 .layout-wrapper {
+  padding-top: 60px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  width: 100%;
   background-color: #18191a;
-  height: 100vh;
+  box-sizing: border-box;
+  min-height: 100%;
 }
 
 .layout-content {
   display: flex;
   flex-direction: row;
-  justify-content: center;
   width: 100%;
-  flex: 1;
-  overflow: hidden;
+  max-width: 1200px;
+  margin: 0 auto;
   gap: 20px;
   box-sizing: border-box;
+  padding: 0 16px;
+  flex: 1;
 }
 
 .sidebar-left {
-  width: 280px;
   flex-shrink: 0;
+  width: 240px;
+  position: sticky;
+  top: 60px;
+  height: fit-content;
 }
 
 .feed-center {
   flex: 1;
+  max-width: 680px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  max-width: 680px;
-  height: 100%;
-  overflow-y: auto;
-  padding-right: 6px;
-  margin-top: 50px; /* ✅ ระยะห่างจาก Navbar สำหรับ Desktop */
+  box-sizing: border-box;
+  margin-top: -50px; /* ✅ ระยะห่างจาก Navbar สำหรับ Desktop */
 }
 
 .sidebar-right {
-  width: 300px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 80px;
-  height: fit-content;
-  align-self: flex-start;
-  margin-left: auto;
+  position: fixed;         /* ✅ อยู่กับที่ */
+  top: 60px;               /* ✅ ชิดล่างของ Navbar */
+  right: 16px;             /* ✅ ระยะห่างจากขอบขวา */
+  width: 270px;
+  height: calc(100vh - 60px); /* ✅ ให้เต็มความสูงของหน้าจอ */
+  overflow-y: auto;        /* ✅ Scroll ภายใน (ถ้ามีเนื้อหาเกิน) */
 }
 
 @media (max-width: 1024px) {
   .layout-content {
     flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-    padding: 12px 8px;
+    padding: 0 8px;
   }
 
   .sidebar-left,
@@ -60,7 +60,6 @@
 
   .feed-center {
     max-width: 100%;
-    height: 100vh;
-    margin-top: 30px; /* ✅ ระยะห่างน้อยลงบน Mobile/Tablet */
+    margin-top: -50px; /* ✅ เวอร์ชันมือถือ ใช้ margin-top: 30px */
   }
 }

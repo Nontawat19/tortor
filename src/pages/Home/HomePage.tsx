@@ -9,19 +9,21 @@ import "@/styles/HomePage.css";
 const HomePage: React.FC = () => {
   return (
     <MainLayout>
-      <div className="layout-content">
-        <aside className="sidebar-left">
-          <LeftSidebar />
-        </aside>
+      <div className="layout-wrapper">
+        <div className="layout-content">
+          <aside className="sidebar-left">
+            <LeftSidebar />
+          </aside>
 
-        <main className="feed-center">
-          <PostCreator />
-          <PostList />
-        </main>
+          <main className="feed-center">
+            <PostCreator />
+            <PostList />
+          </main>
 
-        <aside className="sidebar-right">
-          <RightSidebar />
-        </aside>
+          <aside className="sidebar-right">
+            <RightSidebar />
+          </aside>
+        </div>
       </div>
     </MainLayout>
   );

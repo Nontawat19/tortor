@@ -68,9 +68,20 @@ button:focus-visible {
 }
 html, body, #root {
   margin: 0;
-  height: 100%;
-  overflow: hidden; /* ป้องกัน scroll ซ้อน */
+  padding: 0;
+  height: auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: #18191a;
 }
+
+
+
+
+
+
+
 
 
 

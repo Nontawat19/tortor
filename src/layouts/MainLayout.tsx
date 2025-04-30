@@ -9,17 +9,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
     <>
       <Navbar />
-      <div
-        className="layout-wrapper"
-        style={{
-          backgroundColor: "#18191a",
-          height: "100vh",              // เปลี่ยนจาก minHeight
-          overflow: "hidden",           // ปิด scroll หลัก
-          paddingTop: "56px",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
+      <div className="layout-wrapper">
         {children}
       </div>
     </>

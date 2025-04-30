@@ -1,49 +1,16 @@
 .right-sidebar {
-    width: 320px;
-    background-color: #18191a;
-    color: #e4e6eb;
-    height: calc(100vh - 60px); /* ลบความสูง Navbar */
-    position: fixed;
-    top: 60px;
-    right: 0;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  
-  /* Responsive: ซ่อนขวาเมื่อจอเล็ก */
-  @media (max-width: 768px) {
-    .right-sidebar {
-      display: none;
-    }
-  }
-  
-  /* ส่วนของแต่ละ Section เช่น โฆษณา วันเกิด ติดต่อ */
-  .right-section {
-    margin-bottom: 30px;
-  }
-  
-  /* รูปโฆษณา */
-  .right-ad {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-top: 10px;
-  }
-  
-  /* รายการผู้ติดต่อ */
-  .contact-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .contact-list li {
-    margin-top: 8px;
-  }
-/* Sidebar.css (LeftSidebar, RightSidebar ถ้ามีแยก) */
-
-.sidebar {
+  width: 270px;
   background-color: #18191a;
   color: #e4e6eb;
+  padding: 20px;
+  box-sizing: border-box;
+  height: fit-content;
+  position: sticky;
+  top: 60px;
 }
-  
+
+@media (max-width: 1024px) {
+  .right-sidebar {
+    display: none;
+  }
+}
