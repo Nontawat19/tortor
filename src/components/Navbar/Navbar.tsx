@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+
 import {
   FaFacebook,
   FaHome,
@@ -7,12 +11,13 @@ import {
   FaGamepad,
   FaBell,
   FaFacebookMessenger,
-  FaSearch
+  FaSearch,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+
 import { auth, firestore } from "@/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
+import defaultProfile from "@/assets/profile.png";
 import "@/styles/Navbar.css";
 import SearchSidebar from "@/components/SearchSidebar/SearchSidebar";
 
@@ -26,7 +31,7 @@ const mockSearchHistory = [
   { id: 7, name: "Jane Waraphon" },
   { id: 8, name: "แลกผู้ติดตาม" },
   { id: 9, name: "เพจรีวิวคาเฟ่" },
-  { id: 10, name: "ข่าวสดออนไลน์" }
+  { id: 10, name: "ข่าวสดออนไลน์" },
 ];
 
 const Navbar: React.FC = () => {
@@ -55,7 +60,6 @@ const Navbar: React.FC = () => {
         <div className="fb-navbar-container">
           <div className="fb-navbar-left">
             <FaFacebook className="fb-brand-icon" onClick={() => navigate("/home")} />
-            {/* ช่องค้นหา เฉพาะ Desktop */}
             <div className="fb-search-desktop">
               <input
                 type="text"
@@ -63,8 +67,6 @@ const Navbar: React.FC = () => {
                 className="fb-search-input"
               />
             </div>
-
-            {/* ปุ่มค้นหา Mobile */}
             <FaSearch
               className="fb-search-icon-mobile"
               onClick={() => setIsSearchOpen(true)}
@@ -82,16 +84,18 @@ const Navbar: React.FC = () => {
             <FaFacebookMessenger className="fb-icon" />
             <FaBell className="fb-icon" />
             <img
-              src={profileUrl || "https://i.pravatar.cc/150"}
+              src={profileUrl || defaultProfile}
               alt="profile"
               className="fb-profile-pic"
               onClick={() => navigate("/profile")}
+              onError={(e) => {
+                e.currentTarget.src = defaultProfile;
+              }}
             />
           </div>
         </div>
       </nav>
 
-      {/* เปิด SearchSidebar */}
       {isSearchOpen && (
         <SearchSidebar
           onClose={() => setIsSearchOpen(false)}

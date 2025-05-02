@@ -1,0 +1,39 @@
+.post-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  border-top: 1px solid #3e4042;
+  padding-top: 12px;
+}
+
+.post-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b0b3b8;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.post-option:hover {
+  background-color: #3a3b3c;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.post-button {
+  background-color: #2374e1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.post-button:hover {
+  background-color: #1a6ed8;
+}

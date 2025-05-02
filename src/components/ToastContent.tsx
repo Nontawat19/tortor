@@ -1,5 +1,5 @@
 // src/components/ToastContent.tsx
-import React from "react";
+import React from 'react';
 
 interface ToastContentProps {
   title: string;

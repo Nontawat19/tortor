@@ -1,38 +1,108 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/services/firebase';
-import '@/styles/PostList.css';
+import PostMediaModal from './postlist/PostMediaModal';
+import PostItem from './postlist/PostItem';
+import PostSkeleton from '@/components/Post/postlist/PostSkeleton';
+import '@/styles/postlist/PostList.css';
 
 interface MediaItem {
-  type: string;
+  type: 'image' | 'video';
   url: string;
 }
 
 interface Post {
   id: string;
+  userId: string;
   text: string;
-  createdAt: any;
   media?: MediaItem[];
+  createdAt?: {
+    seconds: number;
+    nanoseconds: number;
+  };
+  likes?: number;
+}
+
+interface UserData {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  fullName: string;
+  profileUrl?: string;
 }
 
 const PostList: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [users, setUsers] = useState<Record<string, UserData>>({});
   const [modalPost, setModalPost] = useState<MediaItem[] | null>(null);
   const [modalIndex, setModalIndex] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isImagesLoaded, setIsImagesLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setLoading(true);
       const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Post[];
-      setPosts(data);
+      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Post[];
+
+        const transformedPosts = data.map(post => ({
+          ...post,
+          media: post.media?.map((item) => ({
+            ...item,
+            type: item.type === 'image' || item.type === 'video' ? item.type : 'image',
+          })),
+        }));
+
+        const userIds = Array.from(new Set(data.map(post => post.userId)));
+        const userMap: Record<string, UserData> = { ...users };
+
+        await Promise.all(
+          userIds.map(async (uid) => {
+            if (!userMap[uid]) {
+              const userDoc = await getDoc(doc(db, 'users', uid));
+              if (userDoc.exists()) {
+                userMap[uid] = userDoc.data() as UserData;
+              }
+            }
+          })
+        );
+
+        setUsers(userMap);
+        setPosts(transformedPosts);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
     };
 
     fetchPosts();
   }, []);
+
+  useEffect(() => {
+    if (!loading && posts.length > 0) {
+      const imagePromises = posts.flatMap(post =>
+        post.media?.map(mediaItem => {
+          if (mediaItem.type === 'image') {
+            return new Promise<void>((resolve) => {
+              const img = new Image();
+              img.src = mediaItem.url;
+              img.onload = () => resolve();
+              img.onerror = () => resolve();
+            });
+          }
+          return Promise.resolve();
+        }) || []
+      );
+
+      Promise.all(imagePromises).then(() => {
+        setIsImagesLoaded(true);
+      });
+    }
+  }, [loading, posts]);
 
   const openModal = (media: MediaItem[], index: number) => {
     setModalPost(media);
@@ -44,97 +114,34 @@ const PostList: React.FC = () => {
     setModalIndex(0);
   };
 
-  const prevImage = () => {
-    if (modalPost) {
-      setModalIndex((modalIndex - 1 + modalPost.length) % modalPost.length);
-    }
-  };
-
-  const nextImage = () => {
-    if (modalPost) {
-      setModalIndex((modalIndex + 1) % modalPost.length);
-    }
-  };
-
   return (
     <>
       <div className="post-list">
-        {posts.length === 0 ? (
+        {loading || !isImagesLoaded ? (
+          Array.from({ length: 5 }).map((_, index) => <PostSkeleton key={index} />)
+        ) : posts.length === 0 ? (
           <div className="no-posts">
             <p>ยังไม่มีโพสต์ในระบบ</p>
           </div>
         ) : (
           posts.map(post => (
-            <div key={post.id} className="post-item">
-              <div className="post-header">
-                <img
-                  src="https://via.placeholder.com/40"
-                  alt="avatar"
-                  className="avatar"
-                />
-                <div className="post-header-info">
-                  <span className="post-username">ผู้ใช้ไม่ทราบชื่อ</span>
-                  <span className="post-time">
-                    {post.createdAt?.seconds
-                      ? new Date(post.createdAt.seconds * 1000).toLocaleString()
-                      : 'ไม่ทราบเวลา'}
-                  </span>
-                </div>
-              </div>
-              <div className="post-content">
-                <p>{post.text}</p>
-                <div className="post-media-grid">
-                  {post.media?.slice(0, 10).map((item, index) => (
-                    item.type === 'image' ? (
-                      <img
-                        key={index}
-                        src={item.url}
-                        alt={`media-${index}`}
-                        className="post-media"
-                        onClick={() => openModal(post.media!, index)}
-                      />
-                    ) : (
-                      <video
-                        key={index}
-                        src={item.url}
-                        controls
-                        className="post-media"
-                      />
-                    )
-                  ))}
-                </div>
-              </div>
-            </div>
+            <PostItem
+              key={post.id}
+              post={post}
+              user={users[post.userId]}
+              openModal={openModal}
+            />
           ))
         )}
       </div>
 
       {modalPost && (
-        <div className="image-modal" onClick={closeModal}>
-          <button
-            className="modal-nav left"
-            onClick={e => {
-              e.stopPropagation();
-              prevImage();
-            }}
-          >
-            &lt;
-          </button>
-          {modalPost[modalIndex].type === 'video' ? (
-            <video src={modalPost[modalIndex].url} controls />
-          ) : (
-            <img src={modalPost[modalIndex].url} alt="preview" />
-          )}
-          <button
-            className="modal-nav right"
-            onClick={e => {
-              e.stopPropagation();
-              nextImage();
-            }}
-          >
-            &gt;
-          </button>
-        </div>
+        <PostMediaModal
+          media={modalPost}
+          currentIndex={modalIndex}
+          closeModal={closeModal}
+          setModalIndex={setModalIndex}
+        />
       )}
     </>
   );

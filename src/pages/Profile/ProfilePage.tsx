@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from 'react';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+
+
+import { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, firestore, storage } from "../../firebase";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";

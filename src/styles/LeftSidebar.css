@@ -1,66 +1,81 @@
 .left-sidebar {
-    width: 280px;
-    background-color: #18191a;
-    color: #e4e6eb;
-    height: calc(100vh - 60px); /* ลบความสูง Navbar ออก */
-    position: fixed;
-    top: 60px;
-    left: 0;
-    padding: 20px;
-    overflow-y: auto;
-  }
-  
-  /* Responsive: ซ่อน Sidebar ซ้ายเมื่อหน้าจอเล็ก */
-  @media (max-width: 768px) {
-    .left-sidebar {
-      display: none;
-    }
-  }
-  
-  .left-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 30px;
-  }
-  
-  .left-profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-  
-  .left-profile-name {
-    font-weight: bold;
-  }
-  
-  .left-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .left-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-  }
-  
-  .left-item:hover {
-    background-color: #3a3b3c;
-  }
-  
-  .left-icon {
-    font-size: 20px;
-  }
-  /* Sidebar.css (LeftSidebar, RightSidebar ถ้ามีแยก) */
+  width: 280px;
+  background-color: #18191a;
+  color: #e4e6eb;
+  height: calc(100vh - 60px); /* ลบความสูง Navbar ออก */
+  position: fixed;
+  top: 60px;
+  left: 0;
+  padding: 20px;
+  overflow-y: auto;
+}
 
+/* Responsive: ซ่อน Sidebar ซ้ายเมื่อหน้าจอเล็ก */
+@media (max-width: 768px) {
+  .left-sidebar {
+    display: none;
+  }
+}
+
+/* ✅ ลิงก์โปรไฟล์ - ไม่มี underline และไม่เปลี่ยนสี */
+.left-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 30px;
+  text-decoration: none;
+  color: inherit; /* ใช้สีจาก parent (ขาว) */
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+/* ✅ hover, visited, active ก็ยังสีขาว ไม่มี underline */
+.left-profile:hover,
+.left-profile:visited,
+.left-profile:active {
+  text-decoration: none;
+  color: inherit;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.left-profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.left-profile-name {
+  font-weight: bold;
+}
+
+.left-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.left-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.left-item:hover {
+  background-color: #3a3b3c;
+}
+
+.left-icon {
+  font-size: 20px;
+}
+
+/* เผื่อมี Sidebar รวม */
 .sidebar {
   background-color: #18191a;
   color: #e4e6eb;

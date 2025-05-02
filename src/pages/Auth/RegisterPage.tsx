@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { auth, firestore, storage } from "../../firebase"; // ✅ ใช้ firestore แทน database
 import { createUserWithEmailAndPassword } from "firebase/auth";

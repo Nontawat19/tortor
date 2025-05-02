@@ -5,11 +5,13 @@ import { firestore, storage } from "@/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
-import "../../styles/postcreator/PostCreator.css";
+import { FaRegImage } from "react-icons/fa6";
 
+import defaultProfile from "@/assets/profile.png";
 import PostTop from "./postcreator/PostTop";
 import PreviewArea from "./postcreator/PreviewArea";
 import PostBottom from "./postcreator/PostBottom";
+import "@/styles/PostCreator.css";
 
 const PostCreator = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -101,12 +103,8 @@ const PostCreator = () => {
   return (
     <div className="post-container">
       <PostTop profileUrl={profileUrl} text={text} setText={setText} />
-      {previews.length > 0 && <PreviewArea previews={previews} files={files} />}
-      <PostBottom
-        handleFileChange={handleFileChange}
-        handlePost={handlePost}
-        uploading={uploading}
-      />
+      <PreviewArea previews={previews} files={files} />
+      <PostBottom handleFileChange={handleFileChange} handlePost={handlePost} uploading={uploading} />
     </div>
   );
 };

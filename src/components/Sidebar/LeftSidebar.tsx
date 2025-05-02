@@ -1,21 +1,36 @@
 import React from "react";
-import "@/styles/LeftSidebar.css";
-import { FaUserFriends, FaClock, FaUsers, FaStore } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { Link } from "react-router-dom";
+import {
+  FaUserFriends,
+  FaClock,
+  FaUsers,
+  FaStore,
+} from "react-icons/fa";
 
-const LeftSidebar: React.FC = () => {
+import defaultProfile from "@/assets/profile.png";
+import "@/styles/LeftSidebar.css";
+
+const LeftSidebar = () => {
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+
   return (
-    <aside className="left-sidebar">
-      {/* โปรไฟล์ */}
-      <div className="left-profile">
+    <div className="left-sidebar">
+      <Link to="/profile" className="left-profile">
         <img
-          src="https://i.pravatar.cc/150"
+          src={currentUser?.profileUrl || defaultProfile}
           alt="Profile"
           className="left-profile-pic"
+          onError={(e) => {
+            e.currentTarget.src = defaultProfile;
+          }}
         />
-        <span className="left-profile-name">Nonthawat Suwannabupha</span>
-      </div>
+        <span className="left-profile-name">
+          {currentUser?.fullName || "ไม่ทราบชื่อ"}
+        </span>
+      </Link>
 
-      {/* เมนู */}
       <div className="left-menu">
         <div className="left-item">
           <FaUserFriends className="left-icon" />
@@ -34,7 +49,7 @@ const LeftSidebar: React.FC = () => {
           <span>Marketplace</span>
         </div>
       </div>
-    </aside>
+    </div>
   );
 };
 

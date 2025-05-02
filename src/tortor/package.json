@@ -1,0 +1,26 @@
+{
+  "name": "tortor",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "redux": "^4.1.0",
+    "react-redux": "^7.2.6",
+    "firebase": "^9.6.1",
+    "browser-image-compression": "^1.0.0",
+    "react-icons": "^4.3.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.4",
+    "@types/react": "^17.0.34",
+    "@types/react-dom": "^17.0.9"
+  }
+}

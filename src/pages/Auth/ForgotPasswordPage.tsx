@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { auth, firestore, storage } from "../../firebase"; // เปลี่ยน database -> firestore
 import { createUserWithEmailAndPassword } from "firebase/auth";

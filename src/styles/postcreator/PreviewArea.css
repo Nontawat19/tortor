@@ -1,0 +1,17 @@
+.preview-area {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+
+.preview-item {
+  position: relative;
+}
+
+.preview-image,
+.preview-video {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
