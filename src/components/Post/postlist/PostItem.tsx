@@ -10,6 +10,11 @@ interface MediaItem {
   url: string;
 }
 
+interface PlatformData {
+  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok';
+  url: string;
+}
+
 interface Post {
   id: string;
   userId: string;
@@ -21,6 +26,8 @@ interface Post {
   };
   likes?: number;
   likedBy?: string[];
+  privacy: 'public' | 'followers' | 'private';
+  urls?: PlatformData[];
 }
 
 interface UserData {
@@ -45,10 +52,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, user, openModal }) => {
   }, [user, post.likedBy]);
 
   const handleLike = async () => {
-    if (!user) {
-      console.error('User not logged in');
-      return;
-    }
+    if (!user) return;
 
     const postRef = doc(db, 'posts', post.id);
 
@@ -70,14 +74,17 @@ const PostItem: React.FC<PostItemProps> = ({ post, user, openModal }) => {
       }
     } catch (error) {
       console.error('Error updating likes:', error);
-      setIsLiked(!isLiked);
-      setLikesCount(isLiked ? likesCount + 1 : likesCount - 1);
     }
   };
 
   return (
     <div className="post-item">
-      <PostHeader user={user} createdAt={post.createdAt} />
+      <PostHeader
+        user={user}
+        createdAt={post.createdAt}
+        privacy={post.privacy}
+        urls={post.urls}
+      />
       <PostContent post={post} openModal={openModal} />
       <div className="post-actions">
         <button

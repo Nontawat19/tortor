@@ -11,6 +11,11 @@ interface MediaItem {
   url: string;
 }
 
+interface PlatformData {
+  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok';
+  url: string;
+}
+
 interface Post {
   id: string;
   userId: string;
@@ -21,6 +26,9 @@ interface Post {
     nanoseconds: number;
   };
   likes?: number;
+  likedBy?: string[];
+  privacy: 'public' | 'followers' | 'private';
+  urls?: PlatformData[]; // ✅ เพิ่ม
 }
 
 interface UserData {
@@ -43,15 +51,26 @@ const PostList: React.FC = () => {
     const fetchPosts = async () => {
       setLoading(true);
       const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-        const data = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Post[];
+        const data = querySnapshot.docs.map(doc => {
+          const raw = doc.data();
+          return {
+            id: doc.id,
+            userId: raw.userId,
+            text: raw.text,
+            media: raw.media,
+            createdAt: raw.createdAt,
+            likes: raw.likes,
+            likedBy: raw.likedBy,
+            privacy: raw.privacy || 'public',
+            urls: raw.urls || [], // ✅ โหลด platform URLs มาด้วย
+          };
+        }) as Post[];
 
         const transformedPosts = data.map(post => ({
           ...post,
-          media: post.media?.map((item) => ({
+          media: post.media?.map(item => ({
             ...item,
             type: item.type === 'image' || item.type === 'video' ? item.type : 'image',
           })),

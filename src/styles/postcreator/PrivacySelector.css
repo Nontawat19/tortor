@@ -1,0 +1,55 @@
+/* 🔘 Container */
+.privacy-selector {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* 🔘 ปุ่มหลัก */
+  .privacy-button {
+    background-color: #3a3b3c;
+    color: #e4e6eb;
+    border: none;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .privacy-button:hover {
+    background-color: #4e4f50;
+  }
+  
+  /* 🔽 เมนู dropdown */
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background-color: #242526;
+    border-radius: 12px;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+    min-width: 180px;
+  }
+  
+  /* 🔘 ตัวเลือกภายใน dropdown */
+  .dropdown-option {
+    padding: 8px 16px;
+    color: #e4e6eb;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .dropdown-option:hover {
+    background-color: #3a3b3c;
+  }
+  

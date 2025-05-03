@@ -2,38 +2,73 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-top: 12px;
   border-top: 1px solid #3e4042;
   padding-top: 12px;
+  flex-wrap: nowrap;
 }
 
-.post-option {
+/* ปุ่มรูปภาพ/วิดีโอแบบใหม่ */
+.upload-button-ui {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #b0b3b8;
+  background-color: #2d2f31;
+  color: #e4e6eb;
+  padding: 10px 16px;
+  border-radius: 12px;
   font-size: 14px;
-  cursor: pointer;
-}
-
-.post-option:hover {
-  background-color: #3a3b3c;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-.post-button {
-  background-color: #2374e1;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  white-space: nowrap;
 }
 
-.post-button:hover {
-  background-color: #1a6ed8;
+.upload-button-ui:hover {
+  background-color: #3a3b3c;
+}
+
+.upload-icon {
+  color: #1877f2; /* 🔵 น้ำเงิน Facebook */
+}
+
+/* Wrapper ปุ่มโพสต์ */
+.post-button-wrapper {
+  flex-grow: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ปุ่มโพสต์ */
+.post-button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* พร้อมโพสต์ */
+.post-button.can-post {
+  background-color: #1877f2;
+  color: white;
+  cursor: pointer;
+}
+
+.post-button.can-post:hover {
+  background-color: #165fc1;
+}
+
+/* โพสต์ไม่ได้ */
+.post-button.cannot-post {
+  background-color: #1877f2;
+  color: white;
+  cursor: not-allowed;
+}
+
+.post-button.cannot-post:hover {
+  background-color: #3a3b3c;
+  color: #8a8d91;
 }

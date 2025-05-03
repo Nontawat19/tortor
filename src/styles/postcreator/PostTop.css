@@ -1,26 +1,52 @@
-.post-top {
+.post-top-wrapper {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
 }
 
-.profile-img {
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.post-input {
-  flex: 1;
-  background-color: #3a3b3c;
-  border: none;
-  border-radius: 20px;
-  padding: 12px 16px;
+.user-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0; /* ✅ ไม่มีช่องว่างระหว่างชื่อและปุ่ม */
+}
+
+.user-name {
+  font-weight: 600;
   color: #e4e6eb;
   font-size: 15px;
+}
+
+.privacy-mini {
+  transform: scale(0.8);
+  transform-origin: top left;
+}
+
+.post-input {
+  margin-top: 0;               /* ✅ ไม่มีช่องว่างจาก privacy */
+  background-color: #3a3b3c;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 15px;
+  color: #e4e6eb;
   resize: none;
-  min-height: 80px;
-  line-height: 1.4;
+  width: 100%;
+  min-height: 140px;
+  box-sizing: border-box;
 }
