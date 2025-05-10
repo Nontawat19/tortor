@@ -23,28 +23,38 @@ const initialState: AuthState = {
 export const listenToAuthChanges = createAsyncThunk(
   'auth/listenToAuthChanges',
   async (_, thunkAPI) => {
-    return new Promise<UserProfile | null>((resolve) => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const docRef = doc(firestore, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
+    try {
+      return new Promise<UserProfile | null>((resolve, reject) => {
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            try {
+              const docRef = doc(firestore, 'users', user.uid);
+              const docSnap = await getDoc(docRef);
 
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            resolve({
-              uid: user.uid,
-              email: user.email,
-              fullName: userData.fullName,
-              profileUrl: userData.profileUrl,
-            });
+              if (docSnap.exists()) {
+                const userData = docSnap.data();
+                resolve({
+                  uid: user.uid,
+                  email: user.email,
+                  fullName: userData.fullName,
+                  profileUrl: userData.profileUrl,
+                });
+              } else {
+                resolve(null);
+              }
+            } catch (error) {
+              console.error('Error fetching user data:', error);
+              reject('Failed to fetch user data');
+            }
           } else {
             resolve(null);
           }
-        } else {
-          resolve(null);
-        }
+        });
       });
-    });
+    } catch (error) {
+      console.error('Error in listenToAuthChanges:', error);
+      return thunkAPI.rejectWithValue('Failed to listen to auth changes');
+    }
   }
 );
 
@@ -68,6 +78,9 @@ const authSlice = createSlice({
     });
     builder.addCase(listenToAuthChanges.fulfilled, (state, action) => {
       state.user = action.payload;
+      state.loading = false;
+    });
+    builder.addCase(listenToAuthChanges.rejected, (state) => {
       state.loading = false;
     });
   },

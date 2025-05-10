@@ -8,6 +8,11 @@ import ProfilePage from "./pages/Profile/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 
+// Import Legal Pages
+import PrivacyPolicy from "./pages/Legal/PrivacyPolicy";
+import TermsOfService from "./pages/Legal/TermsOfService";
+import UserDataDeletion from "./pages/Legal/UserDataDeletion";
+
 function App() {
   return (
     <Router>
@@ -63,6 +68,11 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* Legal Pages */}
+        <Route path="/legal/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/legal/terms-of-service" element={<TermsOfService />} />
+        <Route path="/legal/user-data-deletion" element={<UserDataDeletion />} />
 
         {/* Default fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { doc, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
-import { db } from '@/services/firebase';
+import React from 'react';
 import PostHeader from './PostHeader';
 import PostContent from './PostContent';
+import PostListFooter from './PostListFooter';
 import '@/styles/postlist/PostItem.css';
 
 interface MediaItem {
@@ -31,50 +30,21 @@ interface Post {
 }
 
 interface UserData {
+  uid: string; // เพิ่มฟิลด์ uid
   fullName: string;
   profileUrl?: string;
 }
 
 interface PostItemProps {
   post: Post;
-  user: UserData | undefined;
+  user: UserData | undefined;             // เจ้าของโพสต์
+  currentUser?: UserData | null;          // ✅ อนุญาตให้เป็น null
   openModal: (media: MediaItem[], index: number) => void;
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post, user, openModal }) => {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likesCount, setLikesCount] = useState(post.likes || 0);
-
-  useEffect(() => {
-    if (user && post.likedBy?.includes(user.fullName)) {
-      setIsLiked(true);
-    }
-  }, [user, post.likedBy]);
-
-  const handleLike = async () => {
-    if (!user) return;
-
-    const postRef = doc(db, 'posts', post.id);
-
-    try {
-      if (isLiked) {
-        setIsLiked(false);
-        setLikesCount(likesCount - 1);
-        await updateDoc(postRef, {
-          likes: increment(-1),
-          likedBy: arrayRemove(user.fullName),
-        });
-      } else {
-        setIsLiked(true);
-        setLikesCount(likesCount + 1);
-        await updateDoc(postRef, {
-          likes: increment(1),
-          likedBy: arrayUnion(user.fullName),
-        });
-      }
-    } catch (error) {
-      console.error('Error updating likes:', error);
-    }
+const PostItem: React.FC<PostItemProps> = ({ post, user, currentUser, openModal }) => {
+  const handleCommentClick = () => {
+    console.log('แสดงความคิดเห็นสำหรับโพสต์:', post.id);
   };
 
   return (
@@ -86,14 +56,11 @@ const PostItem: React.FC<PostItemProps> = ({ post, user, openModal }) => {
         urls={post.urls}
       />
       <PostContent post={post} openModal={openModal} />
-      <div className="post-actions">
-        <button
-          className={`like-button ${isLiked ? 'liked' : ''}`}
-          onClick={handleLike}
-          aria-label="Like button"
-        ></button>
-      </div>
-      <div className="likes-count">{likesCount} likes</div>
+      <PostListFooter
+        post={post}
+        user={currentUser || undefined} // ✅ ป้องกัน null ด้วย fallback
+        onCommentClick={handleCommentClick}
+      />
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 import { db } from '@/services/firebase';
 import PostMediaModal from './postlist/PostMediaModal';
 import PostItem from './postlist/PostItem';
@@ -28,11 +30,12 @@ interface Post {
   likes?: number;
   likedBy?: string[];
   privacy: 'public' | 'followers' | 'private';
-  urls?: PlatformData[]; // ✅ เพิ่ม
+  urls?: PlatformData[];
 }
 
 interface UserData {
-  id: string;
+  id: string; // ใช้ id เป็น uid
+  uid: string; // เพิ่มฟิลด์ uid
   name: string;
   avatarUrl: string;
   fullName: string;
@@ -40,6 +43,7 @@ interface UserData {
 }
 
 const PostList: React.FC = () => {
+  const currentUserData = useSelector((state: RootState) => state.auth.user);
   const [posts, setPosts] = useState<Post[]>([]);
   const [users, setUsers] = useState<Record<string, UserData>>({});
   const [modalPost, setModalPost] = useState<MediaItem[] | null>(null);
@@ -64,17 +68,9 @@ const PostList: React.FC = () => {
             likes: raw.likes,
             likedBy: raw.likedBy,
             privacy: raw.privacy || 'public',
-            urls: raw.urls || [], // ✅ โหลด platform URLs มาด้วย
+            urls: raw.urls || [],
           };
         }) as Post[];
-
-        const transformedPosts = data.map(post => ({
-          ...post,
-          media: post.media?.map(item => ({
-            ...item,
-            type: item.type === 'image' || item.type === 'video' ? item.type : 'image',
-          })),
-        }));
 
         const userIds = Array.from(new Set(data.map(post => post.userId)));
         const userMap: Record<string, UserData> = { ...users };
@@ -91,7 +87,7 @@ const PostList: React.FC = () => {
         );
 
         setUsers(userMap);
-        setPosts(transformedPosts);
+        setPosts(data);
         setLoading(false);
       });
 
@@ -147,7 +143,8 @@ const PostList: React.FC = () => {
             <PostItem
               key={post.id}
               post={post}
-              user={users[post.userId]}
+              user={users[post.userId]}                     // เจ้าของโพสต์
+              currentUser={currentUserData || undefined}    // ✅ ป้องกัน null
               openModal={openModal}
             />
           ))

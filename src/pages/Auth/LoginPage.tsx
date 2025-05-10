@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, FacebookAuthProvider, signInWithPopup } from "firebase/auth"; // ✅ เพิ่ม FacebookAuthProvider
 import { auth } from "../../firebase";
-import { ToastContainer, toast } from "react-toastify"; // ยังคง import ไว้ เพราะบางกรณีใช้ Toast error
+import { ToastContainer, toast } from "react-toastify";
 import ToastContent from "../../components/ToastContent";
 import Logo from "../../assets/logo.png";
 import { showFirebaseError } from "../../utils/showFirebaseError";
@@ -26,8 +26,19 @@ const LoginPage: React.FC = () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       setTimeout(() => {
-        navigate("/home", { state: { fromLogin: true } }); // ✅ Navigate อย่างเดียว ไม่ต้อง Toast ที่นี่
-      }, 300); // หน่วงนิดนึงให้แน่ใจว่า login สำเร็จก่อน
+        navigate("/home", { state: { fromLogin: true } });
+      }, 300);
+    } catch (error: any) {
+      console.error(error);
+      showFirebaseError(error);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    const provider = new FacebookAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      navigate("/home", { state: { fromLogin: true } });
     } catch (error: any) {
       console.error(error);
       showFirebaseError(error);
@@ -75,6 +86,11 @@ const LoginPage: React.FC = () => {
           />
           <button type="submit">เข้าสู่ระบบ</button>
         </form>
+
+        {/* ✅ ปุ่ม Facebook Login */}
+        <button type="button" className="facebook-login-button" onClick={handleFacebookLogin}>
+          เข้าสู่ระบบด้วย Facebook
+        </button>
 
         <div className="link-container">
           <p className="link-text" onClick={() => navigate("/register")}>

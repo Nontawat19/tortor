@@ -156,3 +156,22 @@ form button:hover {
     font-size: 14px;
   }
 }
+/* ปุ่มเข้าสู่ระบบด้วย Facebook */
+.facebook-login-button {
+  width: 100%;
+  padding: 14px;
+  background-color: #1877f2;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  margin-top: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.facebook-login-button:hover {
+  background-color: #145dbf;
+  transform: translateY(-2px);
+}
