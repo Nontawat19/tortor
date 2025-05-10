@@ -55,17 +55,30 @@ const PostCreator = () => {
   };
 
   const urlPatterns = {
-    facebook: /(?:https?:\/\/)?(?:www\.|web\.|m\.)?facebook\.com(?:\/\S*)?/,
-    instagram: /(?:https?:\/\/)?(?:www\.|m\.)?instagram\.com(?:\/\S*)?/,
-    youtube: /(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/\S+|youtu\.be\/\S+/,
-    tiktok: /(?:https?:\/\/)?(?:www\.|m\.|vm\.)?tiktok\.com\/\S+/,
+    facebook: /(?:https?:\/\/)?(?:www\.|m\.|web\.)?facebook\.com\/(?:pages\/[\w-]+\/\d+|groups\/[\w.-]+|photo\.php\?fbid=\d+|profile\.php\?id=\d+|permalink\.php\?story_fbid=\d+&id=\d+|[\w.-]+(?:\/[\w.-]+)*)(?:\?[^\s]*)?/gi,
+
+    instagram: /(?:https?:\/\/)?(?:www\.|m\.)?instagram\.com\/(?:p|reel|tv|stories|[\w.-]+)(?:\/[\w.-]+)*(?:\/)?(?:\?[^\s]*)?/gi,
+
+    youtube: /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s]*)?/gi,
+
+    tiktok: /(?:https?:\/\/)?(?:www\.|m\.|vm\.)?tiktok\.com\/(?:@[\w.-]+\/video\/\d+|v\/\d+\.html|t\/[\w\d]+|[\w\d]+)(?:\?[^\s]*)?/gi,
   };
-  
+
+  const extractSocialUrls = (text: string) => {
+    const detected: { platform: string; url: string }[] = [];
+    for (const [platform, pattern] of Object.entries(urlPatterns)) {
+      const matches = [...text.matchAll(pattern)];
+      matches.forEach((match) => {
+        detected.push({ platform, url: match[0] });
+      });
+    }
+    return detected;
+  };
 
   const canPost =
     text.trim() !== "" ||
     files.length > 0 ||
-    Object.values(urlPatterns).some((pattern) => pattern.test(text));
+    extractSocialUrls(text).length > 0;
 
   const handlePost = async () => {
     if (uploading || !currentUser) return;
@@ -78,19 +91,19 @@ const PostCreator = () => {
         if (file.type.startsWith("image/")) {
           uploadFile = await compressImage(file);
         }
-        const fileRef = ref(storage, `posts/${currentUser.uid}/${Date.now()}-${file.name}`);
+        const fileRef = ref(
+          storage,
+          `posts/${currentUser.uid}/${Date.now()}-${file.name}`
+        );
         await uploadBytes(fileRef, uploadFile);
         const url = await getDownloadURL(fileRef);
-        mediaUrls.push({ url, type: file.type.startsWith("image/") ? "image" : "video" });
+        mediaUrls.push({
+          url,
+          type: file.type.startsWith("image/") ? "image" : "video",
+        });
       }
 
-      const detectedUrls: { platform: string; url: string }[] = [];
-      for (const [platform, pattern] of Object.entries(urlPatterns)) {
-        const match = text.match(pattern);
-        if (match) {
-          detectedUrls.push({ platform, url: match[0] });
-        }
-      }
+      const detectedUrls = extractSocialUrls(text);
 
       const postData = {
         userId: currentUser.uid,

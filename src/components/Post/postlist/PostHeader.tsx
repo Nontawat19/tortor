@@ -78,6 +78,47 @@ const PostHeader: React.FC<PostHeaderProps> = ({ user, createdAt, privacy, urls 
     }
   };
 
+  const isMobile = typeof window !== "undefined" && /iPhone|Android/i.test(navigator.userAgent);
+
+  const getSmartLink = (url: string, platform: string) => {
+    if (!isMobile) return url;
+
+    try {
+      const u = new URL(url);
+
+      switch (platform) {
+        case "facebook":
+          // ใช้ universal deep link ของ Facebook
+          return `fb://facewebmodal/f?href=${url}`;
+
+        case "instagram":
+          // Instagram ใช้ deep link เปิดแอปโดยตรง
+          return `instagram://app`;
+
+        case "youtube": {
+          // รองรับ watch?v=, shorts/, embed/, youtu.be/
+          const videoIdMatch = url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
+          if (videoIdMatch) {
+            return `vnd.youtube://${videoIdMatch[1]}`;
+          }
+          break;
+        }
+
+        case "tiktok": {
+          const videoIdMatch = url.match(/\/video\/(\d+)/);
+          if (videoIdMatch) {
+            return `intent://@user/video/${videoIdMatch[1]}#Intent;scheme=https;package=com.zhiliaoapp.musically;end`;
+          }
+          break;
+        }
+      }
+    } catch (e) {
+      return url;
+    }
+
+    return url;
+  };
+
   return (
     <div className="post-header-wrapper">
       <div className="post-header">
@@ -103,7 +144,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ user, createdAt, privacy, urls 
           {urls.map((item, index) => (
             <a
               key={index}
-              href={item.url}
+              href={getSmartLink(item.url, item.platform)}
               target="_blank"
               rel="noopener noreferrer"
               className={`platform-icon ${item.platform}`}
