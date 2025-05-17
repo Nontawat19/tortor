@@ -1,16 +1,15 @@
-import React from 'react';
-import PostHeader from './PostHeader';
-import PostContent from './PostContent';
-import PostListFooter from './PostListFooter';
-import '@/styles/postlist/PostItem.css';
+import React from "react";
+import PostHeader from "./PostHeader";
+import PostContent from "./PostContent";
+import PostListFooter from "./PostListFooter";
 
 interface MediaItem {
-  type: 'image' | 'video';
+  type: "image" | "video";
   url: string;
 }
 
 interface PlatformData {
-  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok';
+  platform: string;
   url: string;
 }
 
@@ -25,30 +24,35 @@ interface Post {
   };
   likes?: number;
   likedBy?: string[];
-  privacy: 'public' | 'followers' | 'private';
+  privacy: "public" | "followers" | "private";
   urls?: PlatformData[];
 }
 
 interface UserData {
-  uid: string; // เพิ่มฟิลด์ uid
+  uid: string;
   fullName: string;
   profileUrl?: string;
 }
 
 interface PostItemProps {
   post: Post;
-  user: UserData | undefined;             // เจ้าของโพสต์
-  currentUser?: UserData | null;          // ✅ อนุญาตให้เป็น null
+  user: UserData | undefined;
+  currentUser?: UserData | null;
   openModal: (media: MediaItem[], index: number) => void;
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post, user, currentUser, openModal }) => {
+const PostItem: React.FC<PostItemProps> = ({
+  post,
+  user,
+  currentUser,
+  openModal,
+}) => {
   const handleCommentClick = () => {
-    console.log('แสดงความคิดเห็นสำหรับโพสต์:', post.id);
+    console.log("แสดงความคิดเห็นสำหรับโพสต์:", post.id);
   };
 
   return (
-    <div className="post-item">
+    <div className="bg-[#242526] text-white p-4 rounded-xl shadow-sm mb-4 w-full">
       <PostHeader
         user={user}
         createdAt={post.createdAt}
@@ -58,7 +62,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, user, currentUser, openModal 
       <PostContent post={post} openModal={openModal} />
       <PostListFooter
         post={post}
-        user={currentUser || undefined} // ✅ ป้องกัน null ด้วย fallback
+        user={currentUser || undefined}
         onCommentClick={handleCommentClick}
       />
     </div>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { auth, firestore, storage } from "../../firebase"; // ✅ ใช้ firestore แทน database
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; // ✅ import ของ firestore
+import { auth, firestore, storage } from "../../firebase";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 import { ToastContainer, toast } from "react-toastify";
@@ -12,7 +12,6 @@ import ProfilePlaceholder from "../../assets/profile.png";
 import { showFirebaseError } from "../../utils/showFirebaseError";
 
 import "react-toastify/dist/ReactToastify.css";
-import "../../styles/RegisterPage.css";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +38,11 @@ const RegisterPage: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!selectedFile) {
+      toast.warn(<ToastContent title="ยังไม่เลือกรูปโปรไฟล์" message="กรุณาเลือกรูปภาพก่อนสมัครสมาชิก" />);
+      return;
+    }
+
     if (!fullName || !email || !password || !confirmPassword) {
       toast.warn(<ToastContent title="ข้อมูลไม่ครบ" message="กรุณากรอกข้อมูลให้ครบทุกช่อง" />);
       return;
@@ -59,28 +63,26 @@ const RegisterPage: React.FC = () => {
       const user = userCredential.user;
       const uid = user.uid;
 
-      let profileImageUrl = "";
+      const compressedFile = await imageCompression(selectedFile, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 500,
+        useWebWorker: true,
+      });
 
-      if (selectedFile) {
-        const compressedFile = await imageCompression(selectedFile, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 500,
-          useWebWorker: true,
-        });
-
-        const storageReference = storageRef(storage, `profiles/${uid}`);
-        await uploadBytes(storageReference, compressedFile);
-        profileImageUrl = await getDownloadURL(storageReference);
-      }
+      const storageReference = storageRef(storage, `profiles/${uid}`);
+      await uploadBytes(storageReference, compressedFile);
+      const imageUrl = await getDownloadURL(storageReference);
 
       await setDoc(doc(firestore, "users", uid), {
         fullName,
         email,
-        profileUrl: profileImageUrl || profileUrl || "",
+        profileUrl: imageUrl || profileUrl || "",
         createdAt: Date.now(),
       });
 
-      toast.success(<ToastContent title="ลงทะเบียนสำเร็จ" message="กำลังกลับไปหน้า Login..." />);
+      await signOut(auth);
+
+      toast.success(<ToastContent title="ลงทะเบียนสำเร็จ" message="กรุณาเข้าสู่ระบบอีกครั้ง" />);
       setTimeout(() => navigate("/login"), 2500);
     } catch (error: any) {
       console.error(error);
@@ -89,81 +91,53 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="register-container">
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        closeButton={false}
-        style={{ width: "400px" }}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-10">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
 
-      <div className="register-card">
-        <div className="logo-container">
-          <img src={Logo} alt="Tortor Logo" className="logo-image" />
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6 animate-fadeIn">
+        <div className="flex justify-center">
+          <img src={Logo} alt="Logo" className="w-28 h-auto animate-fadeLogoIn" />
         </div>
+        <h2 className="text-2xl font-bold text-center text-gray-800">สมัครสมาชิก</h2>
 
-        <h2 className="register-title">สมัครสมาชิก</h2>
-
-        <div className="profile-image-wrapper">
-          <label htmlFor="profileUpload" className="profile-upload">
+        <div className="flex justify-center">
+          <label htmlFor="profileUpload" className="cursor-pointer">
             {previewImage ? (
-              <img src={previewImage} alt="Profile" className="profile-image" />
+              <img src={previewImage} alt="Profile" className="w-24 h-24 rounded-full object-cover border" />
             ) : (
               <div
-                className="profile-placeholder"
-                style={{
-                  backgroundImage: `url(${ProfilePlaceholder})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  backgroundRepeat: "no-repeat",
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "50%",
-                }}
+                className="w-24 h-24 rounded-full border bg-center bg-cover bg-no-repeat"
+                style={{ backgroundImage: `url(${ProfilePlaceholder})` }}
               />
             )}
           </label>
-          <input
-            id="profileUpload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-          />
+          <input id="profileUpload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
         </div>
 
-        <form onSubmit={handleRegister} className="register-form">
-          <div className="form-row">
-            <input
-              type="text"
-              placeholder="ชื่อ-นามสกุล"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-            <input
-              type="email"
-              placeholder="อีเมล"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-row">
+        <form onSubmit={handleRegister} className="space-y-4">
+          <input
+            type="text"
+            placeholder="ชื่อ-นามสกุล"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="email"
+            placeholder="อีเมล"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <div className="flex gap-3">
             <input
               type="password"
               placeholder="รหัสผ่าน"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
             <input
@@ -171,23 +145,29 @@ const RegisterPage: React.FC = () => {
               placeholder="ยืนยันรหัสผ่าน"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-
-          <div className="form-full">
-            <input
-              type="text"
-              placeholder="URL โปรไฟล์ Facebook (ไม่บังคับ)"
-              value={profileUrl}
-              onChange={(e) => setProfileUrl(e.target.value)}
-            />
-          </div>
-
-          <button type="submit">สมัครสมาชิก</button>
+          <input
+            type="text"
+            placeholder="URL โปรไฟล์ Facebook (ไม่บังคับ)"
+            value={profileUrl}
+            onChange={(e) => setProfileUrl(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition duration-200"
+          >
+            สมัครสมาชิก
+          </button>
         </form>
 
-        <p className="back-to-login" onClick={() => navigate("/login")}>
+        <p
+          className="text-center text-sm text-blue-600 font-medium cursor-pointer hover:underline"
+          onClick={() => navigate("/login")}
+        >
           กลับสู่หน้า Login
         </p>
       </div>

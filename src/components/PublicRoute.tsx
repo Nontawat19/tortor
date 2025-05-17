@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { auth } from "../firebase";
 
 interface PublicRouteProps {
@@ -7,6 +7,7 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
+  const location = useLocation();
   const [user, setUser] = useState<null | object>(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,10 +21,11 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   }, []);
 
   if (loading) {
-    return <div>กำลังโหลด...</div>; // หรือแสดง spinner loading ก็ได้
+    return <div>กำลังโหลด...</div>;
   }
 
-  if (user) {
+  // ✅ อย่า redirect ถ้าอยู่ที่ /register
+  if (user && location.pathname !== "/register") {
     return <Navigate to="/home" replace />;
   }
 

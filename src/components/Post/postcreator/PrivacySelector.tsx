@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaGlobeAsia, FaUserFriends, FaLock, FaChevronDown } from "react-icons/fa";
-import "@/styles/postcreator/PrivacySelector.css";
 
 const options = [
   { label: "สาธารณะ", icon: <FaGlobeAsia />, value: "public" },
@@ -15,12 +14,12 @@ interface Props {
 
 const PrivacySelector: React.FC<Props> = ({ value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null); // ✅ สำหรับตรวจจับ click นอก
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false); // ✅ ปิด dropdown เมื่อคลิกข้างนอก
+        setIsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -30,17 +29,20 @@ const PrivacySelector: React.FC<Props> = ({ value, onChange }) => {
   const current = options.find((opt) => opt.value === value);
 
   return (
-    <div className="privacy-selector" ref={ref}>
-      <button className="privacy-button" onClick={() => setIsOpen((prev) => !prev)}>
-        {current?.icon} {current?.label} <FaChevronDown />
+    <div className="relative inline-block" ref={ref}>
+      <button
+        className="bg-[#3a3b3c] text-[#e4e6eb] text-sm px-3 py-[6px] rounded-full flex items-center gap-2 hover:bg-[#4e4f50] transition"
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        {current?.icon} {current?.label} <FaChevronDown size={12} />
       </button>
 
       {isOpen && (
-        <div className="dropdown-menu">
+        <div className="absolute z-50 mt-2 bg-[#242526] rounded-xl shadow-xl py-2 min-w-[180px]">
           {options.map((opt) => (
             <div
               key={opt.value}
-              className="dropdown-option"
+              className="px-4 py-2 text-sm text-[#e4e6eb] flex items-center gap-2 hover:bg-[#3a3b3c] cursor-pointer transition"
               onClick={() => {
                 onChange(opt.value);
                 setIsOpen(false);

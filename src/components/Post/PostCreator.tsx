@@ -6,14 +6,11 @@ import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from "browser-image-compression";
 
-import "@/styles/postcreator/PostCreator.css";
-import "@/styles/postcreator/PrivacySelector.css";
-
 import PostTop from "./postcreator/PostTop";
 import PreviewArea from "./postcreator/PreviewArea";
 import PostBottom from "./postcreator/PostBottom";
 
-const PostCreator = () => {
+const PostCreator: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -25,6 +22,7 @@ const PostCreator = () => {
     if (files.length > 0) {
       const previewUrls = files.map((file) => URL.createObjectURL(file));
       setPreviews(previewUrls);
+      return () => previewUrls.forEach((url) => URL.revokeObjectURL(url));
     } else {
       setPreviews([]);
     }
@@ -46,68 +44,57 @@ const PostCreator = () => {
   };
 
   const compressImage = async (file: File) => {
-    const options = {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    };
+    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
     return await imageCompression(file, options);
   };
 
-  const urlPatterns = {
-    facebook: /(?:https?:\/\/)?(?:www\.|m\.|web\.)?facebook\.com\/(?:pages\/[\w-]+\/\d+|groups\/[\w.-]+|photo\.php\?fbid=\d+|profile\.php\?id=\d+|permalink\.php\?story_fbid=\d+&id=\d+|[\w.-]+(?:\/[\w.-]+)*)(?:\?[^\s]*)?/gi,
-
-    instagram: /(?:https?:\/\/)?(?:www\.|m\.)?instagram\.com\/(?:p|reel|tv|stories|[\w.-]+)(?:\/[\w.-]+)*(?:\/)?(?:\?[^\s]*)?/gi,
-
-    youtube: /(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:[^\s]*)?/gi,
-
-    tiktok: /(?:https?:\/\/)?(?:www\.|m\.|vm\.)?tiktok\.com\/(?:@[\w.-]+\/video\/\d+|v\/\d+\.html|t\/[\w\d]+|[\w\d]+)(?:\?[^\s]*)?/gi,
-  };
-
-  const extractSocialUrls = (text: string) => {
+  const extractTextAndUrls = (text: string) => {
+    const urlPatterns = {
+      facebook: /\bhttps?:\/\/(?:www\.|m\.|web\.)?facebook\.com\/[^\s\u0E00-\u0E7F]+/gi,
+      instagram: /\bhttps?:\/\/(?:www\.|m\.)?instagram\.com\/[^\s\u0E00-\u0E7F]+/gi,
+      youtube: /\bhttps?:\/\/(?:www\.|m\.)?(?:youtube\.com\/[^\s\u0E00-\u0E7F]+|youtu\.be\/[^\s\u0E00-\u0E7F]+)/gi,
+    };
     const detected: { platform: string; url: string }[] = [];
+    let cleanedText = text;
     for (const [platform, pattern] of Object.entries(urlPatterns)) {
       const matches = [...text.matchAll(pattern)];
       matches.forEach((match) => {
         detected.push({ platform, url: match[0] });
+        cleanedText = cleanedText.replace(match[0], " ");
       });
     }
-    return detected;
+    cleanedText = cleanedText.replace(/\s+/g, " ").trim();
+    return { cleanedText, urls: detected };
   };
 
-  const canPost =
-    text.trim() !== "" ||
-    files.length > 0 ||
-    extractSocialUrls(text).length > 0;
+  const { cleanedText, urls: detectedUrls } = extractTextAndUrls(text);
+  const canPost = cleanedText.trim() !== "" || files.length > 0 || detectedUrls.length > 0;
 
   const handlePost = async () => {
     if (uploading || !currentUser) return;
     setUploading(true);
     try {
-      let mediaUrls: { url: string; type: string }[] = [];
+      const mediaUrls: { url: string; type: string }[] = [];
 
       for (const file of files) {
         let uploadFile = file;
         if (file.type.startsWith("image/")) {
-          uploadFile = await compressImage(file);
+          try {
+            uploadFile = await compressImage(file);
+          } catch (err) {
+            console.warn("Image compression failed", err);
+          }
         }
-        const fileRef = ref(
-          storage,
-          `posts/${currentUser.uid}/${Date.now()}-${file.name}`
-        );
+
+        const fileRef = ref(storage, `posts/${currentUser.uid}/${Date.now()}-${file.name}`);
         await uploadBytes(fileRef, uploadFile);
         const url = await getDownloadURL(fileRef);
-        mediaUrls.push({
-          url,
-          type: file.type.startsWith("image/") ? "image" : "video",
-        });
+        mediaUrls.push({ url, type: file.type.startsWith("image/") ? "image" : "video" });
       }
-
-      const detectedUrls = extractSocialUrls(text);
 
       const postData = {
         userId: currentUser.uid,
-        text,
+        text: cleanedText,
         media: mediaUrls,
         urls: detectedUrls,
         privacy,
@@ -130,22 +117,11 @@ const PostCreator = () => {
   };
 
   return (
-    <div className="post-container">
-      <PostTop
-        text={text}
-        setText={setText}
-        privacy={privacy}
-        setPrivacy={setPrivacy}
-      />
-
+    <div className="w-full max-w-[600px] bg-[#242526] rounded-xl p-4 shadow-md mb-6 mx-auto">
+      <PostTop text={text} setText={setText} privacy={privacy} setPrivacy={setPrivacy} />
       {previews.length > 0 && (
-        <PreviewArea
-          previews={previews}
-          files={files}
-          onRemove={handleRemove}
-        />
+        <PreviewArea previews={previews} files={files} onRemove={handleRemove} />
       )}
-
       <PostBottom
         handleFileChange={handleFileChange}
         handlePost={handlePost}

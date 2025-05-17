@@ -1,20 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { collection, query, orderBy, onSnapshot, doc, getDoc } from 'firebase/firestore';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { db } from '@/services/firebase';
-import PostMediaModal from './postlist/PostMediaModal';
-import PostItem from './postlist/PostItem';
-import PostSkeleton from '@/components/Post/postlist/PostSkeleton';
-import '@/styles/postlist/PostList.css';
+import React, { useEffect, useState } from "react";
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { db } from "@/services/firebase";
+import PostMediaModal from "./postlist/PostMediaModal";
+import PostItem from "./postlist/PostItem";
+import PostSkeleton from "@/components/Post/postlist/PostSkeleton";
 
 interface MediaItem {
-  type: 'image' | 'video';
+  type: "image" | "video";
   url: string;
 }
 
 interface PlatformData {
-  platform: 'facebook' | 'instagram' | 'youtube' | 'tiktok';
+  platform: string;
   url: string;
 }
 
@@ -29,13 +35,13 @@ interface Post {
   };
   likes?: number;
   likedBy?: string[];
-  privacy: 'public' | 'followers' | 'private';
+  privacy: "public" | "followers" | "private";
   urls?: PlatformData[];
 }
 
 interface UserData {
-  id: string; // ใช้ id เป็น uid
-  uid: string; // เพิ่มฟิลด์ uid
+  id: string;
+  uid: string;
   name: string;
   avatarUrl: string;
   fullName: string;
@@ -54,31 +60,31 @@ const PostList: React.FC = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
-      const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+      const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-        const data = querySnapshot.docs.map(doc => {
+        const data = querySnapshot.docs.map((doc) => {
           const raw = doc.data();
           return {
             id: doc.id,
             userId: raw.userId,
             text: raw.text,
-            media: raw.media,
+            media: raw.media || [],
             createdAt: raw.createdAt,
-            likes: raw.likes,
-            likedBy: raw.likedBy,
-            privacy: raw.privacy || 'public',
+            likes: raw.likes ?? 0,
+            likedBy: raw.likedBy ?? [],
+            privacy: raw.privacy || "public",
             urls: raw.urls || [],
           };
         }) as Post[];
 
-        const userIds = Array.from(new Set(data.map(post => post.userId)));
+        const userIds = Array.from(new Set(data.map((post) => post.userId)));
         const userMap: Record<string, UserData> = { ...users };
 
         await Promise.all(
           userIds.map(async (uid) => {
             if (!userMap[uid]) {
-              const userDoc = await getDoc(doc(db, 'users', uid));
+              const userDoc = await getDoc(doc(db, "users", uid));
               if (userDoc.exists()) {
                 userMap[uid] = userDoc.data() as UserData;
               }
@@ -99,9 +105,9 @@ const PostList: React.FC = () => {
 
   useEffect(() => {
     if (!loading && posts.length > 0) {
-      const imagePromises = posts.flatMap(post =>
-        post.media?.map(mediaItem => {
-          if (mediaItem.type === 'image') {
+      const imagePromises = posts.flatMap((post) =>
+        post.media?.map((mediaItem) => {
+          if (mediaItem.type === "image") {
             return new Promise<void>((resolve) => {
               const img = new Image();
               img.src = mediaItem.url;
@@ -131,20 +137,20 @@ const PostList: React.FC = () => {
 
   return (
     <>
-      <div className="post-list">
+      <div className="w-full max-w-screen-sm md:max-w-[600px] mx-auto px-4 sm:px-0 flex flex-col gap-4 pb-10">
         {loading || !isImagesLoaded ? (
           Array.from({ length: 5 }).map((_, index) => <PostSkeleton key={index} />)
         ) : posts.length === 0 ? (
-          <div className="no-posts">
+          <div className="text-center p-8 bg-[#1c1e21] rounded-xl text-gray-400">
             <p>ยังไม่มีโพสต์ในระบบ</p>
           </div>
         ) : (
-          posts.map(post => (
+          posts.map((post) => (
             <PostItem
               key={post.id}
               post={post}
-              user={users[post.userId]}                     // เจ้าของโพสต์
-              currentUser={currentUserData || undefined}    // ✅ ป้องกัน null
+              user={users[post.userId]}
+              currentUser={currentUserData || undefined}
               openModal={openModal}
             />
           ))

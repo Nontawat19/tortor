@@ -10,43 +10,47 @@ import {
 } from "react-icons/fa";
 
 import defaultProfile from "@/assets/profile.png";
-import "@/styles/LeftSidebar.css";
 
 const LeftSidebar = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
   return (
-    <div className="left-sidebar">
-      <Link to="/profile" className="left-profile">
+    <div className="w-[280px] fixed top-[60px] left-0 h-[calc(100vh-60px)] bg-[#18191a] text-[#e4e6eb] p-5 overflow-y-auto hidden md:block">
+      {/* โปรไฟล์ผู้ใช้ */}
+      <Link
+        to="/profile"
+        className="flex items-center gap-3 mb-6 px-3 py-2 rounded-xl hover:bg-white/10 transition text-inherit no-underline"
+      >
         <img
           src={currentUser?.profileUrl || defaultProfile}
           alt="Profile"
-          className="left-profile-pic"
+          className="w-10 h-10 rounded-full object-cover"
           onError={(e) => {
             e.currentTarget.src = defaultProfile;
           }}
         />
-        <span className="left-profile-name">
+        <span className="font-bold">
           {currentUser?.fullName || "ไม่ทราบชื่อ"}
         </span>
       </Link>
 
-      <div className="left-menu">
-        <div className="left-item">
-          <FaUserFriends className="left-icon" />
-          <span>เพื่อน</span>
+      {/* เมนู */}
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3c] transition cursor-pointer">
+          <FaUserFriends className="text-[20px]" />
+          <span className="text-[16px]">เพื่อน</span>
         </div>
-        <div className="left-item">
-          <FaClock className="left-icon" />
-          <span>ความทรงจำ</span>
+        <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3c] transition cursor-pointer">
+          <FaClock className="text-[20px]" />
+          <span className="text-[16px]">ความทรงจำ</span>
         </div>
-        <div className="left-item">
-          <FaUsers className="left-icon" />
-          <span>กลุ่ม</span>
+        <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3c] transition cursor-pointer">
+          <FaUsers className="text-[20px]" />
+          <span className="text-[16px]">กลุ่ม</span>
         </div>
-        <div className="left-item">
-          <FaStore className="left-icon" />
-          <span>Marketplace</span>
+        <div className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3c] transition cursor-pointer">
+          <FaStore className="text-[20px]" />
+          <span className="text-[16px]">Marketplace</span>
         </div>
       </div>
     </div>

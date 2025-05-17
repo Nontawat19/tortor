@@ -1,87 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, firestore, storage } from "../../firebase"; // เปลี่ยน database -> firestore
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; // เพิ่ม import firestore method
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import imageCompression from "browser-image-compression";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../../firebase";
 import { ToastContainer, toast } from "react-toastify";
 import ToastContent from "../../components/ToastContent";
 import Logo from "../../assets/logo.png";
-import ProfilePlaceholder from "../../assets/profile.png";
 import { showFirebaseError } from "../../utils/showFirebaseError";
 
 import "react-toastify/dist/ReactToastify.css";
-import "../../styles/RegisterPage.css";
 
-const RegisterPage: React.FC = () => {
-  const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
+const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [profileUrl, setProfileUrl] = useState("");
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const navigate = useNavigate();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!fullName || !email || !password || !confirmPassword) {
-      toast.warn(<ToastContent title="ข้อมูลไม่ครบ" message="กรุณากรอกข้อมูลให้ครบทุกช่อง" />);
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.warn(<ToastContent title="รหัสผ่านสั้นเกินไป" message="ต้องมีอย่างน้อย 6 ตัวอักษร" />);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error(<ToastContent title="รหัสผ่านไม่ตรงกัน" message="กรุณายืนยันรหัสผ่านอีกครั้ง" />);
+    if (!email) {
+      toast.warn(<ToastContent title="ข้อมูลไม่ครบ" message="กรุณากรอกอีเมลของคุณ" />);
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const uid = user.uid;
-
-      let profileImageUrl = "";
-
-      if (selectedFile) {
-        const compressedFile = await imageCompression(selectedFile, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 500,
-          useWebWorker: true,
-        });
-
-        const storageReference = storageRef(storage, `profiles/${uid}`);
-        await uploadBytes(storageReference, compressedFile);
-        profileImageUrl = await getDownloadURL(storageReference);
-      }
-
-      await setDoc(doc(firestore, "users", uid), {
-        fullName,
-        email,
-        profileUrl: profileImageUrl || profileUrl || "",
-        createdAt: Date.now(),
-      });
-
-      toast.success(<ToastContent title="ลงทะเบียนสำเร็จ" message="กำลังกลับไปหน้า Login..." />);
-      setTimeout(() => navigate("/login"), 2500);
+      await sendPasswordResetEmail(auth, email);
+      toast.success(<ToastContent title="ส่งอีเมลสำเร็จ" message="กรุณาตรวจสอบกล่องจดหมายของคุณ" />);
     } catch (error: any) {
       console.error(error);
       showFirebaseError(error);
@@ -89,11 +31,43 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="register-container">
-      {/* Toast, Form, UI เหมือนเดิม */}
-      {/* ... */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4 py-10">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6 animate-fadeIn">
+        <div className="flex justify-center">
+          <img src={Logo} alt="Tortor Logo" className="w-28 h-auto animate-fadeLogoIn" />
+        </div>
+        <h2 className="text-2xl font-bold text-center text-gray-800">ลืมรหัสผ่าน</h2>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="กรอกอีเมลของคุณ"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <button
+            type="submit"
+            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 hover:scale-105 transition duration-200"
+          >
+            ส่งลิงก์รีเซ็ตรหัสผ่าน
+          </button>
+        </form>
+
+        <div className="text-center text-sm">
+          <p
+            className="text-blue-600 font-medium cursor-pointer hover:underline"
+            onClick={() => navigate("/login")}
+          >
+            กลับสู่หน้า Login
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default RegisterPage;
+export default ForgotPasswordPage;
